@@ -1,25 +1,33 @@
-const express = require('express')
+const express = require("express");
+const contactsControllers = require("../../controllers/contacts");
+const {
+  createContactSchema,
+  updateContactSchema,
+} = require("../../validators");
+const { validateBody } = require("../../decorators");
 
-const router = express.Router()
+// Instance of express router
+const router = express.Router();
 
-router.get('/', async (req, res, next) => {
-  res.json({ message: 'template message' })
-})
+// Executes controller to receive all contacts
+router.get("/", contactsControllers.getAll);
 
-router.get('/:contactId', async (req, res, next) => {
-  res.json({ message: 'template message' })
-})
+// Executes controlelr to receieve controller by ID
+router.get("/:contactId", contactsControllers.getById);
 
-router.post('/', async (req, res, next) => {
-  res.json({ message: 'template message' })
-})
+// Validates request body as per Create Contact Schema
+// If no error, Executes controller to create new contact
+router.post("/", validateBody(createContactSchema), contactsControllers.create);
 
-router.delete('/:contactId', async (req, res, next) => {
-  res.json({ message: 'template message' })
-})
+// Executes controller to delete contact by ID
+router.delete("/:contactId", contactsControllers.deleteById);
 
-router.put('/:contactId', async (req, res, next) => {
-  res.json({ message: 'template message' })
-})
+// Validates request body as per Update Contact Schema
+// If no error, Executes controller to update contact by ID
+router.put(
+  "/:contactId",
+  validateBody(updateContactSchema),
+  contactsControllers.updateById
+);
 
-module.exports = router
+module.exports = router;

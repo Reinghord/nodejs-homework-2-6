@@ -15,7 +15,7 @@ const getAll = async (req, res, next) => {
 // 4. Otherwise throws 404
 const getById = async (req, res, next) => {
   const id = req.params.contactId;
-  const contactToFind = await Contact.findById({ _id: id });
+  const contactToFind = await Contact.findById(id);
   if (contactToFind) {
     return res.json(contactToFind);
   }

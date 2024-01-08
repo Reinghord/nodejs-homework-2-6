@@ -14,11 +14,6 @@ app.use(express.json());
 
 app.use("/api/contacts", contactsRouter);
 
-// NOT NEEDED, BECAUSE WE HAVE UNIVERSAL ERROR HANDLER 
-// app.use((req, res) => {
-//   res.status(404).json({ message: "Not found" });
-// });
-
 app.use((err, req, res, next) => {
   const { status = 500, message = "Server Error" } = err;
   res.status(status).json({ message });

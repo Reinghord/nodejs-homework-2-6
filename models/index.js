@@ -1,1 +1,1 @@
-module.exports = { contacts: require("./contacts") };
+module.exports = require("./contacts");

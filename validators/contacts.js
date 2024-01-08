@@ -1,12 +1,13 @@
 const Joi = require("joi");
 
 // Schema for creating contact
-// All 3 keys are required
+// Only name key is required
 // Phone key uses string because of possible phone formatting
 const createContactSchema = Joi.object({
   name: Joi.string().required(),
-  email: Joi.string().email().required(),
-  phone: Joi.string().required(),
+  email: Joi.string().email(),
+  phone: Joi.string(),
+  favorite: Joi.boolean(),
 });
 
 // Schema for updating contact
@@ -15,6 +16,17 @@ const updateContactSchema = Joi.object({
   name: Joi.string(),
   email: Joi.string().email(),
   phone: Joi.string(),
+  favorite: Joi.boolean(),
 }).min(1);
 
-module.exports = { createContactSchema, updateContactSchema };
+// Schema for updating favorite status
+// Should consist of only favorite key and same is requried
+const updateFavoriteContactSchema = Joi.object({
+  favorite: Joi.boolean().required(),
+});
+
+module.exports = {
+  createContactSchema,
+  updateContactSchema,
+  updateFavoriteContactSchema,
+};

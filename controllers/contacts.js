@@ -2,10 +2,23 @@ const { ctrlWrapper } = require("../decorators");
 const { HttpError } = require("../helpers");
 const Contact = require("../models/contacts");
 
-// 1. Awaits for the full json of contacts
-// 2. Returns full list
+// 1. Recevies user's id from authorisation middleware
+// 2. Checks query parameters
+// 3. If favorite query, returns contacts depending on favorite value
+// 4. If page&limit query, returns paginated array
+// 5. Otherwise returns full list of contacts from DB
 const getAll = async (req, res, next) => {
-  const contacts = await Contact.find();
+  const { _id: owner } = req.user;
+  const { page = 1, limit = null, favorite = null } = req.query;
+  const skip = (page - 1) * limit;
+  if (favorite) {
+    const contacts = await Contact.find({ owner, favorite }, "");
+    return res.json(contacts);
+  }
+  const contacts = await Contact.find({ owner }, "", {
+    skip,
+    limit,
+  });
   res.json(contacts);
 };
 
@@ -22,10 +35,12 @@ const getById = async (req, res, next) => {
   throw HttpError(404, "Not found");
 };
 
-// 1. Creates new contact from request body
+// 1. Receives user's id from authorisation middleware
+// 1. Creates new contact from request body, writes it down to specific owner
 // 2. Returns with new contact and status 201
 const create = async (req, res, next) => {
-  const newContact = await Contact.create(req.body);
+  const { _id: owner } = req.user;
+  const newContact = await Contact.create({ ...req.body, owner });
   res.status(201).json(newContact);
 };
 

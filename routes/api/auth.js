@@ -5,7 +5,7 @@ const authController = require("../../controllers/auth");
 const {
   signUpSchema,
   signInSchema,
-  subcriptionUpdateSchema,
+  subscriptionUpdateSchema,
 } = require("../../validators/auth");
 const authenticate = require("../../middlewares/authenticate");
 
@@ -38,7 +38,7 @@ router.get("/current", authenticate, authController.currentUser);
 router.patch(
   "/",
   authenticate,
-  validateBody(subcriptionUpdateSchema),
+  validateBody(subscriptionUpdateSchema),
   authController.subcriptionUser
 );
 

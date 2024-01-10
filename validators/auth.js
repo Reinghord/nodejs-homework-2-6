@@ -11,9 +11,8 @@ const signInSchema = Joi.object({
   email: Joi.string().email().required(),
 });
 
-// Separate schema, because Sign Up schema can change in the future
-const subcriptionUpdateSchema = Joi.object({
-  subcription: Joi.string().valid("starter", "pro", "business").required(),
+const subscriptionUpdateSchema = Joi.object({
+  subscription: Joi.string().valid("starter", "pro", "business").required(),
 });
 
-module.exports = { signUpSchema, signInSchema, subcriptionUpdateSchema };
+module.exports = { signUpSchema, signInSchema, subscriptionUpdateSchema };

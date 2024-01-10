@@ -3,7 +3,7 @@ const { HttpError } = require("../helpers");
 // Recevies validation schema as parameter
 // Validates request body
 // If error exists, throws 400
-// Otherwise proceeds to the next middleware 
+// Otherwise proceeds to the next middleware
 const validateBody = (schema) => {
   const func = (req, res, next) => {
     try {

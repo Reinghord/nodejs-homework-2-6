@@ -4,12 +4,18 @@ const { ctrlWrapper } = require("../decorators");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const { SECRET_KEY } = require("../configs");
+const gravatar = require("gravatar");
+const path = require("path");
+const fs = require("fs/promises");
+const Jimp = require("jimp");
+
+const avatarsDir = path.join(__dirname, "../", "public", "avatars");
 
 // 1. Recevies email, password from body
 // 2. Checks in DB if users is existing via email
 // 3. If user exists, throws 400
-// 4. Otherwise, hashs password via bcrypt
-// 5. Creates new user with request body and hashed password
+// 4. Otherwise, hashs password via bcrypt and creates gravatar
+// 5. Creates new user with request body, hashed password and gravatar
 // 6. Returns 201, email and subscription of new user
 const createNewUser = async (req, res, next) => {
   const { email, password } = req.body;
@@ -19,8 +25,13 @@ const createNewUser = async (req, res, next) => {
   }
 
   const hashPassword = await bcrypt.hash(password, 10);
+  const generatedAvatar = gravatar.url(email);
 
-  const newUser = await User.create({ ...req.body, password: hashPassword });
+  const newUser = await User.create({
+    ...req.body,
+    password: hashPassword,
+    avatarURL: generatedAvatar,
+  });
 
   res.status(201).json({
     user: { email: newUser.email, subscription: newUser.subscription },
@@ -89,10 +100,33 @@ const subcriptionUser = async (req, res, next) => {
   res.status(200).json("Subcription updated");
 };
 
+// 1. Recevies user from authorisation middleware
+// 2. Recevies file from request
+// 3. Resizing image via jimp
+// 4. Changes file name and direction to public
+// 5. Writes down path to final image
+// 6. Updates user in DB with new avatar
+// 7. Returns 200 and url to avatar
+const updateAvatar = async (req, res, next) => {
+  const { _id } = req.user;
+  const { path: tempUpload, originalname } = req.file;
+  await Jimp.read(tempUpload).then((image) => {
+    image.resize(250, 250);
+    image.write(tempUpload);
+  });
+  const fileName = `${_id}_${originalname}`;
+  const resultUpload = path.join(avatarsDir, fileName);
+  await fs.rename(tempUpload, resultUpload);
+  const avatarURL = path.join("avatars", fileName);
+  await User.findByIdAndUpdate(_id, { avatarURL: avatarURL });
+  res.status(200).json({ avatarURL });
+};
+
 module.exports = {
   createNewUser: ctrlWrapper(createNewUser),
   signInUser: ctrlWrapper(signInUser),
   logOutUser: ctrlWrapper(logOutUser),
   currentUser: ctrlWrapper(currentUser),
   subcriptionUser: ctrlWrapper(subcriptionUser),
+  updateAvatar: ctrlWrapper(updateAvatar),
 };

@@ -6,6 +6,7 @@ const {
   signUpSchema,
   signInSchema,
   subscriptionUpdateSchema,
+  resendVerificationSchema,
 } = require("../../validators/auth");
 const authenticate = require("../../middlewares/authenticate");
 const upload = require("../../middlewares/upload");
@@ -43,11 +44,25 @@ router.patch(
   authController.subcriptionUser
 );
 
+// 1. Executes authenticate middleware
+// 2. Recevies single file in key "avatar"
+// 3. Executes controller to update avatar of user
 router.patch(
   "/avatars",
   authenticate,
   upload.single("avatar"),
   authController.updateAvatar
+);
+
+// 1. Executes controller for user verification
+router.get("/verify/:verificationToken", authController.verificationUser);
+
+// 1. Validates body via resendVerificationSchema 
+// 2. Executes controller to resend verification token to user
+router.post(
+  "/verify",
+  validateBody(resendVerificationSchema),
+  authController.resendVerification
 );
 
 module.exports = router;
